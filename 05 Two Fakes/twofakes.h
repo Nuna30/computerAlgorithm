@@ -16,7 +16,7 @@ FILE* in;
 FILE* out;
 
 std::string folder_path = "C:\\Users\\minhyeon\\Desktop\\univ\\25-1\\컴퓨터알고리즘\\과제\\computerAlgorithm\\05 Two Fakes\\sample_data_Z3yNbgJ";
-std::string inputFile = "\\05.inp";
+std::string inputFile = "\\04.inp";
 char path[100];
 
 void concatenate() {
