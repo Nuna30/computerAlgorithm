@@ -19,12 +19,21 @@ typedef struct point {
     }
 } point;
 
+double calcDistance(const point& p, const point& q) {
+    return sqrt((q.y - p.y) * (q.y - p.y) + (q.x - p.x) * (q.x - p.x));
+}
+
+int crossProduct(const point& p, const point& q, const point& s) {
+    return (q.x - p.x) * (s.y - p.y) - (q.y - p.y) * (s.x - p.x);
+}
+
 bool signed_area(const point& p, const point& q, set<point>& S) {
     int positiveSign = 0;
     int negativeSign = 0;
     for (const point& s : S) {
-        int crossProduct = (q.x - p.x) * (s.y - p.y) - (q.y - p.y) * (s.x - p.x);
-        if (crossProduct > 0) positiveSign++;
+        if (p.idx == s.idx || q.idx == s.idx) continue;
+        int cross = crossProduct(p, q, s);
+        if (cross > 0) positiveSign++;
         else                  negativeSign++;
     }
     if (positiveSign > 0 && negativeSign > 0) return false;
@@ -45,25 +54,56 @@ int main() {
     point p = {0, 0, 0};
     double pa = 0;
     while (S.size() > 1) {
-        pair<int, point> p1, p2, n;
-        int count = 0;
+        vector<pair<double, point>> candidates;
         for (const point& q : S) {
             if (signed_area(p, q, S)) {
                 double rad = atan2(q.y - p.y, q.x - p.x);
                 double ang = rad * 180 / PI;
                 if (ang < 0) ang += 360;
-                if (count == 0) p1 = {ang, q}, count = 1;
-                else p2 = {ang, q}, count = 0;
+                candidates.push_back({ang, q});
             }
         }
-        if (p1.first - pa < p2.first - pa) n = p1;
-        else n = p2;
-        int na = n.first;
-        point np = n.second;
-        cout << np.idx << endl;
-        p = np;
-        pa = na;
-        S.erase(np);
+        if (candidates.size() == 0) return 1;
+        auto& [min_ang, min_point] = candidates[0];
+        if (candidates.size() > 1) {
+            bool lab = false;
+            for (int i = 1; i < candidates.size(); i++) {
+                const auto& [ang, q] = candidates[i];
+                if (crossProduct(p, min_point, q) == 0) {
+                    if (calcDistance(p, q) < calcDistance(p, min_point)) {
+                        min_ang = ang;
+                        min_point = q;
+                        lab = true;
+                    }
+                }
+                else if (ang > pa && ang < min_ang) {
+                    min_ang = ang;
+                    min_point = q;
+                    lab = true;
+                } 
+            }
+            if (lab == false) {
+                for (int i = 1; i < candidates.size(); i++) {
+                    const auto& [ang, q] = candidates[i];
+                    if (crossProduct(p, min_point, q) == 0) {
+                        if (calcDistance(p, q) < calcDistance(p, min_point)) {
+                            min_ang = ang;
+                            min_point = q;
+                            lab = true;
+                        }
+                    }
+                    else if (ang > pa && ang < min_ang) {
+                        min_ang = ang;
+                        min_point = q;
+                        lab = true;
+                    } 
+                }
+            }
+        }
+        cout << min_point.idx << endl;
+        p = min_point;
+        pa = min_ang;
+        S.erase(p);
     }
     for (const point& q : S) cout << q.idx << endl;
 
