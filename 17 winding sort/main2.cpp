@@ -21,11 +21,13 @@ typedef struct point {
     }
 } point;
 
+이 부분 cross product를 사용해서 부호 판단하는 걸로 개선
+현재 06.inp 빼고 다 통과됨
+그리고 같은 직선 상에 있을 때 거리가 짧은 점을 택하는 로직 없음
+
 bool signed_area(const point& p, const point& q, set<point>& S) {
     double a = double(q.y - p.y) / (q.x - p.x);
     double b = p.y - a * p.x;
-
-    // printf("{%d, %d, %d}, {%d, %d, %d}, a : %.2lf, b : %.2lf\n", p.idx, p.x, p.y, q.idx, q.x, q.y, a, b);
 
     int sign = 0;
     int prev_sign = 0;
@@ -35,7 +37,6 @@ bool signed_area(const point& p, const point& q, set<point>& S) {
         if (compare == 0) continue;
         prev_sign = sign;
         sign = ((compare > 0) ? 1 : -1);
-        // cout << prev_sign << " " << sign << endl;
         if (prev_sign != 0 && sign != prev_sign) return false;
     }
     return true;
@@ -64,21 +65,16 @@ int main() {
                 if (ang < 0) ang += 360;
                 if (count == 0) p1 = {ang, q}, count = 1;
                 else p2 = {ang, q}, count = 0;
-                // cout << "sort" << endl;
             }
         }
         if (p1.first - pa < p2.first - pa) n = p1;
         else n = p2;
         int na = n.first;
         point np = n.second;
-        // cout << np.idx << " " << np.x << " " << np.y << endl;
         cout << np.idx << endl;
-        // cout << "next : " << np.idx << endl;
         p = np;
-        // cout << "p : " << p.idx << " " << p.x << " " << p.y << endl;
         pa = na;
         S.erase(np);
-        // cout << S.size() << endl;
     }
     for (const point& q : S) cout << q.idx << endl;
 
