@@ -59,7 +59,7 @@ int main() {
 
     point p = {0, 0, 0};
     double pa = 0;
-    while (S.size() > 1) {
+    while (!S.empty()) {
         vector<pair<double, point>> candidates;
         for (const point& q : S) {
             if (signed_area(p, q, S)) {
@@ -67,32 +67,41 @@ int main() {
                 double ang = rad * 180 / PI;
                 if (ang < 0) ang += 360;
                 candidates.push_back({ang, q});
-                printf("idx, ang : %d, %.2lf\n", q.idx, ang);
+                // printf("pa, idx, ang : %.2lf, %d, %.2lf\n", pa, q.idx, ang);
             }
         }
-        cout << '\n';
+        // cout << '\n';
         if (candidates.size() == 0) return 1;
         auto& [min_ang, min_point] = candidates[0];
+        for (int i = 0; i < candidates.size(); i++) {
+            if (candidates[i].first >= pa) {
+                min_ang = candidates[i].first;
+                min_point = candidates[i].second;
+                break;
+            }
+        }
         if (candidates.size() > 1) {
             bool lab = false;
+            if (min_ang >= pa) lab = true;
             for (int i = 1; i < candidates.size(); i++) {
                 const auto& [ang, q] = candidates[i];
                 if (crossProduct(p, min_point, q) == 0) {
                     if (calcDistance(p, q) < calcDistance(p, min_point)) {
-                        printf("#1 p : %d, %d -> %d\n", p.idx, min_point.idx, q.idx);
+                        // printf("#1 p : %d, %d -> %d\n", p.idx, min_point.idx, q.idx);
                         min_ang = ang;
                         min_point = q;
                         lab = true;
                     }
                 }
                 else if (ang >= pa && ang < min_ang) {
-                    printf("#2 p: %d, %d -> %d\n", p.idx, min_point.idx, q.idx);
+                    // printf("#2 p: %d, %d -> %d\n", p.idx, min_point.idx, q.idx);
                     min_ang = ang;
                     min_point = q;
                     lab = true;
                 } 
             }
             if (lab == false) {
+                pa = 0;
                 for (int i = 1; i < candidates.size(); i++) {
                     const auto& [ang, q] = candidates[i];
                     if (crossProduct(p, min_point, q) == 0) {
@@ -115,7 +124,6 @@ int main() {
         pa = min_ang;
         S.erase(p);
     }
-    for (const point& q : S) cout << q.idx << endl;
 
     return 0;
 }
