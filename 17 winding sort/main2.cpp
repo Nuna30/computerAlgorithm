@@ -15,31 +15,20 @@ typedef struct point {
     int y;
 
     bool operator<(const point& other) const {
-        if (x != other.x) return x < other.x;
-        if (y != other.y) return y < other.y;
         return idx < other.idx;
     }
 } point;
 
-이 부분 cross product를 사용해서 부호 판단하는 걸로 개선
-현재 06.inp 빼고 다 통과됨
-그리고 같은 직선 상에 있을 때 거리가 짧은 점을 택하는 로직 없음
-
 bool signed_area(const point& p, const point& q, set<point>& S) {
-    double a = double(q.y - p.y) / (q.x - p.x);
-    double b = p.y - a * p.x;
-
-    int sign = 0;
-    int prev_sign = 0;
+    int positiveSign = 0;
+    int negativeSign = 0;
     for (const point& s : S) {
-        if (s.idx == p.idx || s.idx == q.idx) continue;
-        double compare = s.y - a * s.x - b;
-        if (compare == 0) continue;
-        prev_sign = sign;
-        sign = ((compare > 0) ? 1 : -1);
-        if (prev_sign != 0 && sign != prev_sign) return false;
+        int crossProduct = (q.x - p.x) * (s.y - p.y) - (q.y - p.y) * (s.x - p.x);
+        if (crossProduct > 0) positiveSign++;
+        else                  negativeSign++;
     }
-    return true;
+    if (positiveSign > 0 && negativeSign > 0) return false;
+    else                                      return true;
 }
 
 int main() {
